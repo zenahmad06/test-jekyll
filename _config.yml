@@ -1,0 +1,20 @@
+title: "My Data ML Project Blog"
+description: "A blog about machine learning and statistics"
+theme: minima  # Or any GitHub-supported theme
+
+# Correct baseurl for loading images properly
+baseurl: "/test-jekyll/"  # Change this from "/data-ml-project" to ""
+
+url: "https://zenahmad06.github.io"
+
+# Define where static assets (like images) are stored
+defaults:
+  - scope:
+      path: "assets/images"
+    values:
+      image: true
+
+# Ensure Jekyll processes images correctly
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
