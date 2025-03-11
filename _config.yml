@@ -3,7 +3,7 @@ description: "A blog about machine learning and statistics"
 theme: minima  # Or any GitHub-supported theme
 
 # Correct baseurl for loading images properly
-baseurl: "/test-jekyll/"  # Change this from "/data-ml-project" to ""
+baseurl: "/test-jekyll"  # Change this from "/data-ml-project" to ""
 
 url: "https://zenahmad06.github.io"
 
