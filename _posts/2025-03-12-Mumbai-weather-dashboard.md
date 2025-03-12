@@ -1,6 +1,6 @@
 ---
 layout: post
-permalink:/dashboard-mumbai/
+permalink: /dashboard-mumbai/
 ---
 
 
