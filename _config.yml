@@ -16,6 +16,12 @@ defaults:
     values:
       image: true
 
+defaults:
+  - scope:
+      path: "assets/images-bin"
+    values:
+      image: true
+
 # Ensure Jekyll processes images correctly
 plugins:
   - jekyll-feed
