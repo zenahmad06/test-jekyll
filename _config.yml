@@ -26,6 +26,11 @@ defaults:
       path: "assets/image-cnn-rps"
     values:
       image: true
+defaults:
+  - scope:
+      path: "assets/image-mumbai"
+    values:
+      image: true
 
 # Ensure Jekyll processes images correctly
 plugins:
