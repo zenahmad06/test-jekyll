@@ -12,7 +12,7 @@ include:
 # Define where static assets (like images) are stored
 defaults:
   - scope:
-      path: "assets/images"
+      path: "assets/images-desc"
     values:
       image: true
 
