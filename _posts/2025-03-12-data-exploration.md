@@ -1,3 +1,8 @@
+---
+layout: post
+permalink: /data-exploration/
+---
+
 # DESCRIPTIVE STATISTIK
 
     Aadalah angka-angka yang digunakan untuk membuat mendeskripsikan atau meringkas data, beberapa descriptive statistik biasanya digunakan sepersti menghitung rata-rata dan persebaran data
