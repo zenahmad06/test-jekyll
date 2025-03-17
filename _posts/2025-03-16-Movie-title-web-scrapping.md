@@ -1,3 +1,8 @@
+---
+layout: post
+permalink: /movie-data-scrapping/
+---
+
 <h1>Get all list movie name year 2015</h1>
 
 
