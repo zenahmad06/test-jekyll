@@ -38,7 +38,7 @@ defaults:
       image: true
 defaults:
   - scope:
-      path: "assets/feature"
+      path: "assets/image-feature"
     values:
       image: true
 
