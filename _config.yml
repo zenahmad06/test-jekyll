@@ -36,6 +36,11 @@ defaults:
       path: "assets/image-scrap"
     values:
       image: true
+defaults:
+  - scope:
+      path: "assets/feature"
+    values:
+      image: true
 
 # Ensure Jekyll processes images correctly
 plugins:
