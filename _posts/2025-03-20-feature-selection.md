@@ -1,3 +1,9 @@
+---
+layout : posts
+permalink : /feature-selection/
+---
+
+
 <h1>FEATURE SELECTION</h1>
 <p "text-indent: 10cm"> Proses memilih fitur/variabel yang penting saja yang digunakan untuk meningkatkan performa model dan mengurangi overfitting, karena pastinya dalam sebuah dataset pastinya ada beberapa variabel yang tidak penting digunakan atau ada 2 variabel dengan karakteristi sama harus kita lakukan feature selection</p>
 
