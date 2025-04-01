@@ -41,6 +41,12 @@ defaults:
       path: "assets/image-feature"
     values:
       image: true
+defaults:
+  - scope:
+      path: "assets/image-loanapproval"
+    values:
+      image: true
+  
 
 # Ensure Jekyll processes images correctly
 plugins:
