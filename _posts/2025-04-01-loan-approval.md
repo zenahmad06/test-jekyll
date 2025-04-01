@@ -1,3 +1,9 @@
+---
+layout: post
+permalink: /loan-approval/
+---
+
+
 <h1> Loan Approval </h1>
 
 <div> Loan Approval is the process for the lender to deciding if borrower qualify for loan or not, In this project we want to make Loan Approval model to determine if borrower can success to loan or not using Machine Learning model. This is the step to make this project </div>
