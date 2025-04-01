@@ -13,7 +13,7 @@ permalink: /loan-approval/
 <h3>Read Data</h3>
 
 ```python
-    print('hellow workd')
+print('hellow workd')
 ```
 
 ```python
@@ -188,24 +188,24 @@ import numpy as np
 data_cat=data.select_dtypes(include=['object']).columns.tolist()
 #make function of plot categorical
 def make_plot(x,y):
-    tab=data[y].value_counts().sort_values(ascending=True)
-    x_data=tab.values
-    y_data=tab.index
-    #if nuique value just two we make pie chart
-    if len(data[y].unique().tolist())==2:
-        x.pie(x_data,labels=y_data,autopct='%1.1f%%',wedgeprops=dict(width=0.3))
-        x.set_title(y.replace("_"," "),loc='left')
-    #we make barh
-    else:
-        plot_bar=x.barh(y_data,x_data,color='lightblue')
-        x.spines['top'].set_visible(False)
-        x.spines['right'].set_visible(False)
-        x.spines['bottom'].set_visible(False)
-        for i,j in zip(x_data,y_data):
-            x.text(i+20,j,f"{i}",fontweight='bold')
-        x.set_title(y.replace("_"," "),loc='left')
-        x.set_xticklabels([])
-        x.set_xticks([])
+tab=data[y].value_counts().sort_values(ascending=True)
+x_data=tab.values
+y_data=tab.index
+#if nuique value just two we make pie chart
+if len(data[y].unique().tolist())==2:
+x.pie(x_data,labels=y_data,autopct='%1.1f%%',wedgeprops=dict(width=0.3))
+x.set_title(y.replace("_"," "),loc='left')
+#we make barh
+else:
+plot_bar=x.barh(y_data,x_data,color='lightblue')
+x.spines['top'].set_visible(False)
+x.spines['right'].set_visible(False)
+x.spines['bottom'].set_visible(False)
+for i,j in zip(x_data,y_data):
+x.text(i+20,j,f"{i}",fontweight='bold')
+x.set_title(y.replace("_"," "),loc='left')
+x.set_xticklabels([])
+x.set_xticks([])
 ```
 ```python
 fig,ax=plt.subplots(2,2,figsize=(10,6))
