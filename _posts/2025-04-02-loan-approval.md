@@ -1,6 +1,6 @@
 ---
-layout : post
-permalink : /loan-approval/
+layout: post
+permalink: /loan-approval/
 ---
 
 <h1> Loan Approval </h1>
