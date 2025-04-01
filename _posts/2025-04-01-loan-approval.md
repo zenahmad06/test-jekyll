@@ -209,6 +209,8 @@ fig,ax=plt.subplots(2,2,figsize=(10,6))
 for (i,j),k in zip([(i,j) for i in range(2) for j in range(2)],data_cat):
     pl=make_plot(ax[i][j],k)
 plt.tight_layout()
+
+
 ```
 
 
