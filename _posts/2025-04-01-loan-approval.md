@@ -180,7 +180,13 @@ for i in data_cat:
 <li>CB person on file</li>
 <div style="text-align:justify">its like the borrower have crediit history in the banker, if they have, it depend other factor like credic score or payment history, if the result is good, higher chance loan approval and we can get lower interest rate. if we not have cb on file, lowe loan approval since the banker cant sae payment history, even loan is approved, the borrower will get higher interest rate</div>
 
-
+```python
+from matplotlib import pyplot as plt
+import numpy as np
+#get data categorical
+data_cat=data.select_dtypes(include=['object']).columns.tolist()
+#make function of plot categorical
+```
 ```python
 from matplotlib import pyplot as plt
 import numpy as np
