@@ -203,11 +203,7 @@ def make_plot(x,y):
         x.set_title(y.replace("_"," "),loc='left')
         x.set_xticklabels([])
         x.set_xticks([])
-
-    
 ```
-
-
 ```python
 fig,ax=plt.subplots(2,2,figsize=(10,6))
 for (i,j),k in zip([(i,j) for i in range(2) for j in range(2)],data_cat):
