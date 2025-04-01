@@ -1,0 +1,1271 @@
+<h1> Loan Approval </h1>
+
+<div> Loan Approval is the process for the lender to deciding if borrower qualify for loan or not, In this project we want to make Loan Approval model to determine if borrower can success to loan or not using Machine Learning model. This is the step to make this project </div>
+
+<h2>Table of Contents</h2>
+
+<h3>Read Data</h3>
+
+
+```python
+import pandas as pd
+data=pd.read_csv("C:/Users/User/Documents/loan_apro.csv")
+data.shape
+data.head
+```
+
+
+
+
+    <bound method NDFrame.head of           id  person_age  person_income person_home_ownership  \
+    0          0          37          35000                  RENT   
+    1          1          22          56000                   OWN   
+    2          2          29          28800                   OWN   
+    3          3          30          70000                  RENT   
+    4          4          22          60000                  RENT   
+    ...      ...         ...            ...                   ...   
+    58640  58640          34         120000              MORTGAGE   
+    58641  58641          28          28800                  RENT   
+    58642  58642          23          44000                  RENT   
+    58643  58643          22          30000                  RENT   
+    58644  58644          31          75000              MORTGAGE   
+    
+           person_emp_length loan_intent loan_grade  loan_amnt  loan_int_rate  \
+    0                    0.0   EDUCATION          B       6000          11.49   
+    1                    6.0     MEDICAL          C       4000          13.35   
+    2                    8.0    PERSONAL          A       6000           8.90   
+    3                   14.0     VENTURE          B      12000          11.11   
+    4                    2.0     MEDICAL          A       6000           6.92   
+    ...                  ...         ...        ...        ...            ...   
+    58640                5.0   EDUCATION          D      25000          15.95   
+    58641                0.0     MEDICAL          C      10000          12.73   
+    58642                7.0   EDUCATION          D       6800          16.00   
+    58643                2.0   EDUCATION          A       5000           8.90   
+    58644                2.0     VENTURE          B      15000          11.11   
+    
+           loan_percent_income cb_person_default_on_file  \
+    0                     0.17                         N   
+    1                     0.07                         N   
+    2                     0.21                         N   
+    3                     0.17                         N   
+    4                     0.10                         N   
+    ...                    ...                       ...   
+    58640                 0.21                         Y   
+    58641                 0.35                         N   
+    58642                 0.15                         N   
+    58643                 0.17                         N   
+    58644                 0.20                         N   
+    
+           cb_person_cred_hist_length  loan_status  
+    0                              14            0  
+    1                               2            0  
+    2                              10            0  
+    3                               5            0  
+    4                               3            0  
+    ...                           ...          ...  
+    58640                          10            0  
+    58641                           8            1  
+    58642                           2            1  
+    58643                           3            0  
+    58644                           5            0  
+    
+    [58645 rows x 13 columns]>
+
+
+
+
+```python
+data_apr=data[data['loan_status']==0]
+data_apr.iloc[0,:]
+```
+
+
+
+
+    id                                    0
+    person_age                           37
+    person_income                     35000
+    person_home_ownership              RENT
+    person_emp_length                   0.0
+    loan_intent                   EDUCATION
+    loan_grade                            B
+    loan_amnt                          6000
+    loan_int_rate                     11.49
+    loan_percent_income                0.17
+    cb_person_default_on_file             N
+    cb_person_cred_hist_length           14
+    loan_status                           0
+    Name: 0, dtype: object
+
+
+
+There're 58645 rows and 13 columns
+
+<h3> Check Missing Value and Data Duplicate</h3>
+
+
+```python
+data.isnull().sum()
+```
+
+
+
+
+    id                            0
+    person_age                    0
+    person_income                 0
+    person_home_ownership         0
+    person_emp_length             0
+    loan_intent                   0
+    loan_grade                    0
+    loan_amnt                     0
+    loan_int_rate                 0
+    loan_percent_income           0
+    cb_person_default_on_file     0
+    cb_person_cred_hist_length    0
+    loan_status                   0
+    dtype: int64
+
+
+
+
+```python
+dup=data.duplicated().sum()
+dup
+```
+
+
+
+
+    np.int64(0)
+
+
+
+<p text-indent="40px"> Based on result, there's no data duplicated and missing value in this dataset</p>
+
+<h3> EXPLANATORY DATA ANALYSIS</h3>
+
+<b>1. Check the categorical data</b>
+
+
+```python
+data_cat=data.select_dtypes(include=['object']).columns.tolist()
+for i in data_cat:
+    print(f"variable {i} has item : {data[i].unique().tolist()}")
+```
+
+    variable person_home_ownership has item : ['RENT', 'OWN', 'MORTGAGE', 'OTHER']
+    variable loan_intent has item : ['EDUCATION', 'MEDICAL', 'PERSONAL', 'VENTURE', 'DEBTCONSOLIDATION', 'HOMEIMPROVEMENT']
+    variable loan_grade has item : ['B', 'C', 'A', 'D', 'E', 'F', 'G']
+    variable cb_person_default_on_file has item : ['N', 'Y']
+    
+
+<div> There're are four categorical in this dataset 
+<li>Person home ownership</li>
+<div style="text-align:justify">the type of owning a house, this variable have four item like renting (paying money for use property), own (buy the house), mortgage (its like paying property monthly/ we use credit method payment), and the last is Other. We can use owning house status to determine economy stability, for example OWn house is more stabil than rent or mrotgage since own its not making payment no more.</div>
+
+<li> Loan intent</li>
+<div style="text-align:justify">>the purpose of we loan to the bank, there're many reason like for educational, medical, and home impovement. The bankers is considered this because it can determine the risk of loan, for example the borrower loan the money for personal is more higher risk than venture (businees reason) because the banker dont know the ability of borrower to pay the loan for personal reason</div>
+<li>loan grade</li>
+<div style="text-align:justify">its like rating from banker for loan approval, from A is lower risk and E is higher risk, more higher the risk, less loan approval banker to decide</div>
+<li>CB person on file</li>
+<div style="text-align:justify">its like the borrower have crediit history in the banker, if they have, it depend other factor like credic score or payment history, if the result is good, higher chance loan approval and we can get lower interest rate. if we not have cb on file, lowe loan approval since the banker cant sae payment history, even loan is approved, the borrower will get higher interest rate</div>
+
+
+```python
+from matplotlib import pyplot as plt
+import numpy as np
+#get data categorical
+data_cat=data.select_dtypes(include=['object']).columns.tolist()
+#make function of plot categorical
+def make_plot(x,y):
+    tab=data[y].value_counts().sort_values(ascending=True)
+    x_data=tab.values
+    y_data=tab.index
+    #if nuique value just two we make pie chart
+    if len(data[y].unique().tolist())==2:
+        x.pie(x_data,labels=y_data,autopct='%1.1f%%',wedgeprops=dict(width=0.3))
+        x.set_title(y.replace("_"," "),loc='left')
+    #we make barh
+    else:
+        plot_bar=x.barh(y_data,x_data,color='lightblue')
+        x.spines['top'].set_visible(False)
+        x.spines['right'].set_visible(False)
+        x.spines['bottom'].set_visible(False)
+        for i,j in zip(x_data,y_data):
+            x.text(i+20,j,f"{i}",fontweight='bold')
+        x.set_title(y.replace("_"," "),loc='left')
+        x.set_xticklabels([])
+        x.set_xticks([])
+
+    
+```
+
+
+```python
+fig,ax=plt.subplots(2,2,figsize=(10,6))
+for (i,j),k in zip([(i,j) for i in range(2) for j in range(2)],data_cat):
+    pl=make_plot(ax[i][j],k)
+plt.tight_layout()
+```
+
+
+    
+![png]({{ site.baseurl }}/assets/image-loanapproval/loan_approval_16_0.png)
+    
+
+
+<h4>Explanantion</h4>
+
+- most peope who joined loan approval stil rent a house, following mortgage house and owning house. we belive based on this the economy of people who joined loan approval is middle to low economy level.
+- grad A and B in this dataset are the most loan grade that borrower have, The loan grade is good so the economy of lender most is stable since this is grade of lower risk loan.
+- Educational, following medical and personal, it means that loan approval its likely low because educational medical and personal are high risk and the lender have little possibility to get the payment or they have no guarantee for the payment of loan
+- Cb person default on file of NO is higher than yess, so the borrower most come for new user.
+
+<b>2. Check Numerical Variable</b>
+
+
+```python
+#get numerical variable
+data_num=data.select_dtypes(exclude=['object']).columns.tolist()
+data_num_bar=[ i for i in data_num if i!= 'id' and i!='loan_status']
+import numpy as np
+fig,ax=plt.subplots(2,4,figsize=(10,5))
+for (i,j),k in zip([(i,j) for i in range(2) for j in range(4)],data_num_bar):
+    amb=data[k]
+    box=ax[i][j].boxplot(amb,patch_artist=True,showfliers=False,boxprops=dict(facecolor='lightblue',edgecolor='white',alpha=0.5))
+    if not box['boxes']:
+        ax[i,j].axis('off')
+    else:
+        ax[i][j].set_xticklabels([k.replace("_"," ")])
+        q1=np.percentile(amb,25)
+        q3=np.percentile(amb,75)
+        upper=q3+(1.5*(q3-q1))
+        ax[i,j].set_ylim([q1,upper])
+        krx=ax[i,j].get_xlim()
+        li=[]
+        #make a random coordination
+        while len(li)<100:
+            rand=np.random.randint(0,len(amb))
+            get_data=amb[rand]
+            li.append(get_data)
+            
+        for l in li:
+            kor=np.random.uniform(krx[0],krx[1])
+            ax[i,j].scatter(kor,l,marker='o',color='white',edgecolors='black')
+    
+plt.tight_layout()
+```
+
+
+    
+![png]({{ site.baseurl }}/assets/image-loanapproval/loan_approval_20_0.png)
+    
+
+
+<h4>Explanation</h4>
+
+they are many number of numerical variable, for example
+<li> Person age</li>
+Based on the result the age of borrowers between 25 - 30 years, the young man/woman
+<li>Peson Income</li>
+the incomme of borrower distirbution betwen 60000 to 70000, its like low and middle income
+<li> Person Employee Length</li>
+Amoount of time employee working a job, the time based on boxplot from 2 0 6 month, its a short time, so the chance of approval is little lower
+<li>Loan Amount</li>
+the ammount of loan that borrower ask, in this boxplot the loan is littel value from 5000 to 10000
+<li> The Loan Intent Rate</li>
+the percentage between borrow intent to all application, we want show intent rate for each loan intention
+
+
+```python
+#loan intention vs loan intentition rate
+intention=data['loan_intent'].unique().tolist()
+kum={}
+for i in intention:
+    dat=data[data['loan_intent']==i]['loan_int_rate']
+    kum[i]=dat
+df_int=pd.DataFrame(kum)
+df_int.plot(kind='box')
+```
+
+
+
+
+    <Axes: >
+
+
+
+
+    
+![png]({{ site.baseurl }}/assets/image-loanapproval/loan_approval_23_1.png)
+    
+
+
+<p> based on loan intion rate for each type of intention its same value between 7.5 to 12.5, its moderate demand for banker</p>
+
+<h3>Make Model Machine Learning</h3>
+
+We want make a model machine learning to predictingn loan approval or loan status
+
+**1. Check the distribution of loan status**
+
+
+```python
+tab=data['loan_status'].value_counts()
+tab
+```
+
+
+
+
+    loan_status
+    0    50295
+    1     8350
+    Name: count, dtype: int64
+
+
+
+<p> the dataset is <b>imbalanced</b> because the approval of no is more higher than approval status 1</p>
+
+**2. Deciding the model**
+<p> Because the data class is imbalanced, we use <b>XGBOOST</b> because this model perform better for imbalanced class</p>
+
+**3. prepare data**
+<p> Since the variable has different unit value, we can standarization/normalization and for categorical we can doing label encoder. Because we using XGBOOST that can handle different unit value we dont need standarization and normalzation, we just doing label encoding</p>
+
+
+```python
+data_prep=data.copy()
+data_prep.head()
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>person_age</th>
+      <th>person_income</th>
+      <th>person_home_ownership</th>
+      <th>person_emp_length</th>
+      <th>loan_intent</th>
+      <th>loan_grade</th>
+      <th>loan_amnt</th>
+      <th>loan_int_rate</th>
+      <th>loan_percent_income</th>
+      <th>cb_person_default_on_file</th>
+      <th>cb_person_cred_hist_length</th>
+      <th>loan_status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>37</td>
+      <td>35000</td>
+      <td>RENT</td>
+      <td>0.0</td>
+      <td>EDUCATION</td>
+      <td>B</td>
+      <td>6000</td>
+      <td>11.49</td>
+      <td>0.17</td>
+      <td>N</td>
+      <td>14</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>22</td>
+      <td>56000</td>
+      <td>OWN</td>
+      <td>6.0</td>
+      <td>MEDICAL</td>
+      <td>C</td>
+      <td>4000</td>
+      <td>13.35</td>
+      <td>0.07</td>
+      <td>N</td>
+      <td>2</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+      <td>29</td>
+      <td>28800</td>
+      <td>OWN</td>
+      <td>8.0</td>
+      <td>PERSONAL</td>
+      <td>A</td>
+      <td>6000</td>
+      <td>8.90</td>
+      <td>0.21</td>
+      <td>N</td>
+      <td>10</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3</td>
+      <td>30</td>
+      <td>70000</td>
+      <td>RENT</td>
+      <td>14.0</td>
+      <td>VENTURE</td>
+      <td>B</td>
+      <td>12000</td>
+      <td>11.11</td>
+      <td>0.17</td>
+      <td>N</td>
+      <td>5</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4</td>
+      <td>22</td>
+      <td>60000</td>
+      <td>RENT</td>
+      <td>2.0</td>
+      <td>MEDICAL</td>
+      <td>A</td>
+      <td>6000</td>
+      <td>6.92</td>
+      <td>0.10</td>
+      <td>N</td>
+      <td>3</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+<p> Based on dataset, the nominal variable is person home ownership and loan intent, the ordinal variable is loan grade, and boolean variable is cb person default file, we handle differently based on each type of variable</p>
+
+
+```python
+#handle nominal variable
+#make dummy variable
+dat_nominal={}
+data['person_home_ownership']=data['person_home_ownership'].apply(lambda x: x.lower())
+data['loan_intent']=data['loan_intent'].apply(lambda x: x.lower())
+for i in ['person_home_ownership','loan_intent']:
+    kum=pd.get_dummies(data[i]).astype(int)
+    dat_nominal[i]=kum
+    print(kum)
+dummy_vab=pd.concat([dat_nominal['person_home_ownership'],dat_nominal['loan_intent']],axis=1)
+col_dummi=dummy_vab.columns.tolist()
+import json
+with open('columns_dummy.json','w') as f:
+    json.dump(col_dummi,f)
+#make label encoder
+grade=data['loan_grade'].unique().tolist()
+grade.sort()
+map_grade={}
+for i,j in zip(grade,range(len(grade))):
+    map_grade[i]=j
+label_grade=data['loan_grade'].map(map_grade)
+label_file=data['cb_person_default_on_file'].apply(lambda x: 1 if x=='YES' else 0)
+dummy_vab
+```
+
+           mortgage  other  own  rent
+    0             0      0    0     1
+    1             0      0    1     0
+    2             0      0    1     0
+    3             0      0    0     1
+    4             0      0    0     1
+    ...         ...    ...  ...   ...
+    58640         1      0    0     0
+    58641         0      0    0     1
+    58642         0      0    0     1
+    58643         0      0    0     1
+    58644         1      0    0     0
+    
+    [58645 rows x 4 columns]
+           debtconsolidation  education  homeimprovement  medical  personal  \
+    0                      0          1                0        0         0   
+    1                      0          0                0        1         0   
+    2                      0          0                0        0         1   
+    3                      0          0                0        0         0   
+    4                      0          0                0        1         0   
+    ...                  ...        ...              ...      ...       ...   
+    58640                  0          1                0        0         0   
+    58641                  0          0                0        1         0   
+    58642                  0          1                0        0         0   
+    58643                  0          1                0        0         0   
+    58644                  0          0                0        0         0   
+    
+           venture  
+    0            0  
+    1            0  
+    2            0  
+    3            1  
+    4            0  
+    ...        ...  
+    58640        0  
+    58641        0  
+    58642        0  
+    58643        0  
+    58644        1  
+    
+    [58645 rows x 6 columns]
+    
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>mortgage</th>
+      <th>other</th>
+      <th>own</th>
+      <th>rent</th>
+      <th>debtconsolidation</th>
+      <th>education</th>
+      <th>homeimprovement</th>
+      <th>medical</th>
+      <th>personal</th>
+      <th>venture</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>58640</th>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>58641</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>58642</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>58643</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>58644</th>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+<p>58645 rows × 10 columns</p>
+</div>
+
+
+
+
+```python
+#drop unimportant variable 
+data_new=data_prep.drop(data_cat,axis=1)
+data_new.drop(['id'],axis=1,inplace=True)
+#merge
+dat_result=pd.concat([data_new,dummy_vab,label_grade,label_file],axis=1)
+dat_result
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>person_age</th>
+      <th>person_income</th>
+      <th>person_emp_length</th>
+      <th>loan_amnt</th>
+      <th>loan_int_rate</th>
+      <th>loan_percent_income</th>
+      <th>cb_person_cred_hist_length</th>
+      <th>loan_status</th>
+      <th>mortgage</th>
+      <th>other</th>
+      <th>own</th>
+      <th>rent</th>
+      <th>debtconsolidation</th>
+      <th>education</th>
+      <th>homeimprovement</th>
+      <th>medical</th>
+      <th>personal</th>
+      <th>venture</th>
+      <th>loan_grade</th>
+      <th>cb_person_default_on_file</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>37</td>
+      <td>35000</td>
+      <td>0.0</td>
+      <td>6000</td>
+      <td>11.49</td>
+      <td>0.17</td>
+      <td>14</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>22</td>
+      <td>56000</td>
+      <td>6.0</td>
+      <td>4000</td>
+      <td>13.35</td>
+      <td>0.07</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>2</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>29</td>
+      <td>28800</td>
+      <td>8.0</td>
+      <td>6000</td>
+      <td>8.90</td>
+      <td>0.21</td>
+      <td>10</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>30</td>
+      <td>70000</td>
+      <td>14.0</td>
+      <td>12000</td>
+      <td>11.11</td>
+      <td>0.17</td>
+      <td>5</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>22</td>
+      <td>60000</td>
+      <td>2.0</td>
+      <td>6000</td>
+      <td>6.92</td>
+      <td>0.10</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>58640</th>
+      <td>34</td>
+      <td>120000</td>
+      <td>5.0</td>
+      <td>25000</td>
+      <td>15.95</td>
+      <td>0.21</td>
+      <td>10</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>3</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>58641</th>
+      <td>28</td>
+      <td>28800</td>
+      <td>0.0</td>
+      <td>10000</td>
+      <td>12.73</td>
+      <td>0.35</td>
+      <td>8</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>2</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>58642</th>
+      <td>23</td>
+      <td>44000</td>
+      <td>7.0</td>
+      <td>6800</td>
+      <td>16.00</td>
+      <td>0.15</td>
+      <td>2</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>3</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>58643</th>
+      <td>22</td>
+      <td>30000</td>
+      <td>2.0</td>
+      <td>5000</td>
+      <td>8.90</td>
+      <td>0.17</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>58644</th>
+      <td>31</td>
+      <td>75000</td>
+      <td>2.0</td>
+      <td>15000</td>
+      <td>11.11</td>
+      <td>0.20</td>
+      <td>5</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+<p>58645 rows × 20 columns</p>
+</div>
+
+
+
+<p> we will use hybrid approach XGBOOST (use subsample and cross-validation)</p>
+
+<h2> XGBOOST </h2>
+<p> powerful machine learning moddel that use decision tree as base knowledge. WHen we dealing imbalance data class we should use this model</p>
+
+
+```python
+import xgboost as xgb
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import roc_auc_score
+#define X and y
+y=dat_result['loan_status']
+X=dat_result[[i for i in dat_result.columns.tolist() if i !='loan_status' and i!='loan_percent_income' and i!='loan_int_rate']]
+#save the model columns exclude dummy variable
+#spli data into training and test data, ensure proportion of y same as original data we use stratify
+Xtrain,Xtest,ytrain,ytest=train_test_split(X,y,test_size=0.2,random_state=42,stratify=y)
+#split data again for validation
+xtrain_n,xval,ytrain_n,yval=train_test_split(Xtrain,ytrain,test_size=0.2,random_state=42,stratify=ytrain)
+X.columns.tolist()
+```
+
+
+
+
+    ['person_age',
+     'person_income',
+     'person_emp_length',
+     'loan_amnt',
+     'cb_person_cred_hist_length',
+     'mortgage',
+     'other',
+     'own',
+     'rent',
+     'debtconsolidation',
+     'education',
+     'homeimprovement',
+     'medical',
+     'personal',
+     'venture',
+     'loan_grade',
+     'cb_person_default_on_file']
+
+
+
+<h3> Build the model XGBOOST </h3>
+<p> Because we want make model more robust, we use croos validation to improve validation performance and subsample in every tree to avoid overfitting. Subsample is method to choose randomly from dataset.</p>
+
+
+```python
+#define the params
+param={
+    "objective":"binary:logistic", #because class  label y is binary
+    "eval_metric":'auc', #evaluation metric
+    'max_depth':3,
+    'min_child_weight':6,
+    'num_boost_round':500, #number of tree
+    'subsample':0.6, #reduce overfittinh
+    'colsample_bytree':0.6,
+    'reg_alpha':20, #regularization L1
+    'reg_lambda':50, #regularization L2
+    'random_state':42,
+    'scale_pos_weight':sum(ytrain==0)/sum(ytrain==1)*0.5 #adjust weight of minority class
+    
+}
+#using stratified kfold since the data is imbalanced
+from sklearn.model_selection import StratifiedKFold
+#we shuffle before make the fold
+kf=StratifiedKFold(n_splits=5,shuffle=True,random_state=42)
+#convert data to xgb matrix
+dtrain=xgb.DMatrix(xtrain_n, label=ytrain_n)
+dval=xgb.DMatrix(xval, label=yval)
+#croos validation
+cv_result=xgb.cv(
+    params=param,
+    dtrain=dtrain,
+    num_boost_round=100, #its like epochs
+    folds=kf,
+    verbose_eval=False,
+    metrics='auc'
+
+
+)
+#plot the result
+from matplotlib import pyplot as plt
+#training dataset plot
+plt.plot(cv_result['train-auc-mean'],label='training')
+#validation plot
+plt.plot(cv_result['test-auc-mean'],label='validation')
+plt.xlabel('number of boost')
+plt.ylabel('auc score')
+plt.gca().spines['top'].set_visible(False)
+plt.gca().spines['right'].set_visible(False)
+
+plt.legend()
+```
+
+    C:\Users\User\Anaconda3\envs\streamlit_env\lib\site-packages\xgboost\core.py:158: UserWarning: [04:16:36] WARNING: C:\buildkite-agent\builds\buildkite-windows-cpu-autoscaling-group-i-08cbc0333d8d4aae1-1\xgboost\xgboost-ci-windows\src\learner.cc:740: 
+    Parameters: { "num_boost_round" } are not used.
+    
+      warnings.warn(smsg, UserWarning)
+    
+
+
+
+
+    <matplotlib.legend.Legend at 0x1c472af8f70>
+
+
+
+
+    
+![png]({{ site.baseurl }}/assets/image-loanapproval/loan_approval_40_2.png)
+    
+
+
+<h4>Explanantion</h4>
+
+<p> The model is not overfitting and the model is good because there're small gap between training and test</p>
+
+- we choose objective Binary: logistic becase the data class item we have only two values YES or NO
+- also we use evaluation <b>roc-auc method</b>, why because suppose we have 90 apple and 10 not apple, if we still use accuracy the accuracy of apple is 90/90+10 =  90% is high accuracy, but its not objective since the amount of apple is dominance. Roc-auc ive us explained how well model separate positive class and negative class. why we dont use accuracy for imbalance data? suppose we have 100000 data and fraud 1% (10000) the accracy not fraud 99000/1000000= 99% high accuracy, its false statement since data class we have is imbalanced
+- max_depht how depht the model and n_estimator is number of tree we used
+- subsample 0.8 means we use randomly 80% data for each tree
+- col sample bytree is random selection feature for each tree
+- min_child_weight prevent spliting if the node have 6 sample
+- reg_alpha : model remove unimportant feature so the model learn more simple
+- reg_lambda : simpler the model but without remove the feature. learn just important data (more weight than unimportant part)
+- both reg_alpha and reg_lambda is regularization (rule how model learn the data)
+
+
+
+```python
+print(cv_result.shape[0])
+```
+
+    100
+    
+
+**Train the model**
+<p> Train the model using param that we have made before </p>
+
+
+```python
+train_result={}
+model=xgb.train(
+    params=param,
+    dtrain=dtrain,
+    num_boost_round=200,
+    evals=[(dtrain,'train'),(dval,'validation')],
+    evals_result=train_result,
+    verbose_eval=False
+
+)
+from matplotlib import pyplot as plt
+plt.plot(train_result['train']['auc'],label='training')
+plt.plot(train_result['validation']['auc'],label='validation')
+plt.xlabel('number of bost')
+plt.ylabel('auc score')
+plt.gca().spines['top'].set_visible(False)
+plt.gca().spines['right'].set_visible(False)
+
+plt.legend()
+```
+
+    C:\Users\User\Anaconda3\envs\streamlit_env\lib\site-packages\xgboost\core.py:158: UserWarning: [04:16:43] WARNING: C:\buildkite-agent\builds\buildkite-windows-cpu-autoscaling-group-i-08cbc0333d8d4aae1-1\xgboost\xgboost-ci-windows\src\learner.cc:740: 
+    Parameters: { "num_boost_round" } are not used.
+    
+      warnings.warn(smsg, UserWarning)
+    
+
+
+
+
+    <matplotlib.legend.Legend at 0x1c472b5b070>
+
+
+
+
+    
+![png]({{ site.baseurl }}/assets/image-loanapproval/loan_approval_46_2.png)
+    
+
+
+<p> the model works well because there're small gap between trainiin and validation</p>
+
+<h2> Test model using test dataset</h2>
+
+
+```python
+#convert to dbMatrix
+dtest=xgb.DMatrix(Xtest,label=ytest)
+#predict 
+ypred=model.predict(dtest)
+#score auc-score
+from sklearn.metrics import roc_auc_score,roc_curve
+roc_score=roc_auc_score(ytest,ypred)
+print(f"ROC-AUC score is : {roc_score}")
+```
+
+    ROC-AUC score is : 0.9441883307646561
+    
+
+
+```python
+#membuat roc curve
+#fpr false positive rate
+#tpr true positive rate
+fpr,tpr,_=roc_curve(ytest,ypred)
+from matplotlib import pyplot as plt
+plt.plot(fpr,tpr)
+plt.xlabel('false positive rate')
+plt.ylabel('true positive rate')
+plt.gca().spines['top'].set_visible(False)
+plt.gca().spines['right'].set_visible(False)
+
+```
+
+
+    
+![png]({{ site.baseurl }}/assets/image-loanapproval/loan_approval_50_0.png)
+    
+
+
+<p> Based ongraph, the model can distinguish positive and negative within imbalance data with low false positive rate, indicating auc score that we determine before is 0.94m because auc score is more than 0.9 is considered good model</p>
+
+
+<h1>DEPLOYMENT</h1>
+
+you can access this apss : https://zenahmad06-streamlit-file-dpl-brykqq.streamlit.app/
+
+
+```python
+import pickle
+with open("model_approval.pkl","wb") as file:
+    pickle.dump(model,file)
+```
