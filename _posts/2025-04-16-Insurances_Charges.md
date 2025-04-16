@@ -1,6 +1,6 @@
 ---
-layout : posts
-permalink : /insurances-charges/
+layout: post
+permalink: /insurances-charges/
 ---
 
 # Predicting Insurances Charges
