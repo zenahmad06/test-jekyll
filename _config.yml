@@ -46,7 +46,12 @@ defaults:
       path: "assets/image-loanapproval"
     values:
       image: true
-  
+defaults:
+  - scope:
+      path: "assets/images-insurances"
+    values:
+      image: true
+
 
 # Ensure Jekyll processes images correctly
 plugins:
