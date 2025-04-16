@@ -1,3 +1,8 @@
+---
+layout : posts
+permalink : /insurances-charges/
+---
+
 # Predicting Insurances Charges
 
 How much that people should make a payment to get the facilities like healthy facilities and more facilities
